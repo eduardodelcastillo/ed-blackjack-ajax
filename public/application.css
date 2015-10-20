@@ -1,0 +1,43 @@
+body {
+  background-image: url('/images/bggreen.jpg');
+  background-repeat: repeat;
+  color: white;
+  margin-left: 20px;
+}
+
+#blackjack_title {
+  text-align: center
+}
+
+#game_message {
+  position: fixed;
+  width: 30%;
+  text-align: left;
+  float: right;
+  right: 10px;
+}
+
+#game_message th {
+  vertical-align: top;
+}
+
+#game_message form {
+  margin: 0 10px 0 10px;
+}
+
+#fixed_button {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  border-radius: 150px;
+}
+
+#card_cover, .card_image {
+  margin: 0 5px 0 5px;
+  border-radius: 10px;
+  box-shadow: 5px 5px 15px 5px rgba(0,0,0,0.53);
+}
+
+#get_name th {
+  vertical-align: top;
+}

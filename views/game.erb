@@ -1,0 +1,24 @@
+<h4>Hello <%=session[:player_name]%>. Good luck!</h4>
+<br>
+<% if @dealer_turn %>
+  <h5> Dealer's cards are: </h5>
+  <% session[:dealer_cards].each do |card| %>
+    <%=visualize_card(card)%>
+  <% end %>
+  <br/>
+  <br/>
+  Dealer's total is <%=calculate_total(session[:dealer_cards])%>.
+<% else %>
+  <h5>Dealer's cards are: </h5>
+  <%=visualize_card(session[:dealer_cards].first)%>
+  <img id="card_cover" src = '/images/cards/cover.jpg'>
+<% end %>
+<br>
+<br>
+<h5><%=session[:player_name]%>'s cards are:</h5>
+<%session[:player_cards].each do |card| %>
+  <%=visualize_card(card)%>
+<% end %>
+<br/>
+<br/>
+<%=session[:player_name]%>'s total is <%=calculate_total(session[:player_cards])%>.

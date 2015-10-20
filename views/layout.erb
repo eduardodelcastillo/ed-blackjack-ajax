@@ -1,27 +1,74 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My First App</title>
+    <title>Eduardo's Blackjack</title>
     <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/application.css">
   </head>
-  <body style="padding-top: 50px;">
+  <body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-            <ul class="nav">
-              <li><a href="/">Nav Item</a></li>
-            </ul>
-        </div>
-      </div>
-    </div>
+  <div class="container" id="blackjack_title">
+    <h2> B L A C K J A C K </h2>
+  </div>
 
-  <div class="container">
+  <div id="game_message">
+    <%if @hit_or_stay_buttons%>
+      <table>
+        <tr>
+          <th> Does <%=session[:player_name]%> want to hit or stay?</th>
+          <th><form action='/game/player/hit' method='post'>
+            <input type='submit' class='btn btn-primary' value='Hit'>
+          </form></th>
+          <th><form action='/game/player/stay' method='post'>
+            <input type='submit' class='btn btn-warning' value='Stay'>
+          </form></th>
+        </tr>
+      </table>
+    <%end%> 
+
     <%if @error %>
       <div class="alert alert-error"><%=@error%></div>
+    <%end%>
+    <%if @win %>
+      <div class="alert alert-success"><%=@win%></div>
     <% end %>
-      <%= yield %>
+    <%if @info %>
+      <div class="alert alert-info"><%=@info%></div>
+    <% end %> 
+
+    <%if @dealer_second_card_button %>
+      <form action='/game/dealer/second_card' method='post'>
+        <input type='submit' class='btn btn-primary' value='See second card'>
+      </form>  
+    <% end %>
+    <% if @dealer_hit_button %>
+      <form action='/game/dealer/hit' method='post'>
+        <input type='submit' class='btn btn-primary' value="See Dealer's next card">
+      </form>  
+    <% end %>   
+
+    <%if @game_over%>
+      <div class="alert">
+        Does <%=session[:player_name]%> want to play again?
+        <table><tr>
+        <th><form action='/game/play_again_yes' method='post'>
+        <input type='submit' class='btn' value='Yes'>
+        </form></th>
+          <th><form action='/game/play_again_no' method='post'>
+          <input type='submit' class='btn' value='No'>
+        </form></th>  
+        </tr></table>  
+      </div> 
+    <%end%> 
   </div>
+
+  <button class="btn" id='fixed_button'>
+    <a href="/get_name">Start Over</a>
+  </button
+
+  <div class="container">
+    <%= yield %>
+  </div>
+
   </body>
 </html>
