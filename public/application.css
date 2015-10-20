@@ -41,3 +41,7 @@ body {
 #get_name th {
   vertical-align: top;
 }
+
+#score th{
+  padding-left: 30px;
+}

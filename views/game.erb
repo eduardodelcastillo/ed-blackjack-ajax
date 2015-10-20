@@ -1,4 +1,8 @@
-<h4>Hello <%=session[:player_name]%>. Good luck!</h4>
+<table id="score"><tr>
+  <th><h4>Hello <%=session[:player_name]%>. Good luck!</h4></th>
+  <th><h4>  SCORE  </h4></th>
+  <th><%=session[:player_name]%>: <%=session[:player_score]%> | Dealer: <%=session[:dealer_score]%></th>
+</tr></table>
 <br>
 <% if @dealer_turn %>
   <h5> Dealer's cards are: </h5>

@@ -7,6 +7,7 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :secret => 'lana' 
 
 helpers do 
+  @counter = 0
   def calculate_total(cards)
     total = 0
     ace_count = 0
@@ -46,12 +47,15 @@ helpers do
     dealer_total = calculate_total(session[:dealer_cards])
     if dealer_total > 21
       @win = "Dealer busted at #{dealer_total}. #{session[:player_name]} wins!"
+      session[:player_score] += 1          
     elsif player_total == dealer_total
       @info = "It's a tie!"
     elsif player_total > dealer_total
       @win = "Dealer has #{dealer_total} while #{session[:player_name]} has #{player_total}. #{session[:player_name]} wins!"
+      session[:player_score] += 1        
     elsif player_total < dealer_total
       @error = "Dealer has #{dealer_total} while #{session[:player_name]} has #{player_total}. #{session[:player_name]} loses!"
+      session[:dealer_score] += 1  
     end
     @game_over = true
   end
@@ -63,7 +67,7 @@ before do
   @dealer_turn = false
   @dealer_hit_button = false
   @dealer_second_card_button = false
-  @game_over = false   
+  @game_over = false    
 end
 
 get '/' do
@@ -84,6 +88,8 @@ post '/get_name' do
     halt erb(:get_name)
   end
   session[:player_name] = params[:player_name]  
+  session[:player_score] = 0
+  session[:dealer_score] = 0
   redirect '/game'
 end
 
@@ -106,6 +112,7 @@ get '/game' do
     @hit_or_stay_buttons = false
     @win = "#{session[:player_name]} hits blackjack! #{session[:player_name]} wins!"
     @game_over = true
+    session[:player_score] += 1
   else 
     @hit_or_stay_buttons = true
   end
@@ -120,6 +127,7 @@ post '/game/player/hit' do
     @error = "Sorry, #{session[:player_name]} busted at #{calculate_total(session[:player_cards])}!"
     @hit_or_stay_buttons = false
     @game_over = true
+    session[:dealer_score] += 1    
   elsif calculate_total(session[:player_cards]) == 21
     @win = "#{session[:player_name]} got 21."
     @hit_or_stay_buttons = false
@@ -150,6 +158,7 @@ get '/game/dealer' do
   if session[:dealer_cards].length == 2 && dealer_total == 21
     @error = "Dealer hits blackjack. #{session[:player_name]} loses!"
     @game_over = true
+    session[:dealer_score] += 1    
   elsif dealer_total >= 17
     @dealer_hit_button = false
     compare_results    
