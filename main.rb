@@ -63,15 +63,7 @@ before do
   @dealer_turn = false
   @dealer_hit_button = false
   @dealer_second_card_button = false
-  @game_over = false
-  cards = %w(2 3 4 5 6 7 8 9 10 J Q K A)
-  suits = %w(Spades Clubs Hearts Diamonds)
-  deck = suits.product(cards)
-  #set number of decks
-  [1, 2, 3, 4, 5, 6, 7, 8].sample.times do
-    deck += deck
-  end
-  session[:deck] = deck.shuffle!   
+  @game_over = false   
 end
 
 get '/' do
@@ -97,6 +89,12 @@ end
 
 get '/game' do
   @hit_or_stay_buttons = true
+  cards = %w(2 3 4 5 6 7 8 9 10 J Q K A)
+  suits = %w(Spades Clubs Hearts Diamonds)
+  deck = suits.product(cards)
+  # Using 4 deck of cards for the game
+  session[:deck] = deck * 4
+  session[:deck].shuffle!  
   session[:player_cards] = []
   session[:dealer_cards] = [] 
   2.times do 
@@ -148,7 +146,8 @@ end
 get '/game/dealer' do
   @dealer_turn = true
   dealer_total = calculate_total(session[:dealer_cards])
-  if dealer_total == 21
+  #check for blackjack
+  if session[:dealer_cards].length == 2 && dealer_total == 21
     @error = "Dealer hits blackjack. #{session[:player_name]} loses!"
     @game_over = true
   elsif dealer_total >= 17
