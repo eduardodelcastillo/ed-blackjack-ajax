@@ -140,7 +140,7 @@ end
 get '/game' do
   @hit_or_stay_buttons = true
   cards = %w(2 3 4 5 6 7 8 9 10 J Q K A)
-  suits = %w(Spades Clubs Hearts Diamonds)
+  suits = %w(spades clubs hearts diamonds)
   deck = suits.product(cards)
   # Using 4 deck of cards for the game
   session[:deck] = deck * 4
