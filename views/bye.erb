@@ -1,1 +1,12 @@
-<h4>Thank you for playing <%=session[:player_name]%>. Always remember that gambling is bad for you!</h4>
+<h4 id="bye_message">Thank you for playing <%=session[:player_name]%>. Always remember that gambling is bad for you!</h4>
+<br/>
+<br/>
+<br/>
+
+<blockquote>
+  <p>Number of rounds played: <%=session[:counter]%></p>
+  <p>Round winnings: <%=session[:player_name]%> <%=session[:player_score]%> | Dealer <%=session[:dealer_score]%></p>
+  <p><%=session[:player_name]%>'s total money in the pot: $<%=session[:player_pot]%></p>
+  <hr>
+  <p>Highest scoring player so far: <%=session[:high_player]%> with $<%=session[:max_pot]%> on <%=session[:date]%></p>
+</blockquote>

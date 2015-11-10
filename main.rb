@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'sinatra'
+require 'date'
 require 'pry'
 
 use Rack::Session::Cookie, :key => 'rack.session',
@@ -7,7 +8,6 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :secret => 'lana' 
 
 helpers do 
-  @counter = 0
   def calculate_total(cards)
     total = 0
     ace_count = 0
@@ -47,19 +47,36 @@ helpers do
     dealer_total = calculate_total(session[:dealer_cards])
     if dealer_total > 21
       @win = "Dealer busted at #{dealer_total}. #{session[:player_name]} wins!"
-      session[:player_score] += 1          
+      session[:player_score] += 1  
+      session[:player_pot] += session[:player_bet]
     elsif player_total == dealer_total
       @info = "It's a tie!"
     elsif player_total > dealer_total
       @win = "Dealer has #{dealer_total} while #{session[:player_name]} has #{player_total}. #{session[:player_name]} wins!"
-      session[:player_score] += 1        
+      session[:player_score] += 1  
+      session[:player_pot] += session[:player_bet]     
     elsif player_total < dealer_total
       @error = "Dealer has #{dealer_total} while #{session[:player_name]} has #{player_total}. #{session[:player_name]} loses!"
       session[:dealer_score] += 1  
+      session[:player_pot] -= session[:player_bet]
+      check_pot
     end
     @game_over = true
+  end    
+
+  def check_pot
+    if session[:player_pot].to_i <= 0
+      @broke = true
+    end
+  end 
+
+  def set_records
+    if session[:player_pot].to_i > session[:max_pot].to_i
+      session[:max_pot] = session[:player_pot]
+      session[:high_player] = session[:player_name]
+      session[:date] = Time.now.strftime("%d/%m/%Y %H:%M")     
+    end
   end
-      
 end
 
 before do
@@ -67,18 +84,23 @@ before do
   @dealer_turn = false
   @dealer_hit_button = false
   @dealer_second_card_button = false
-  @game_over = false    
+  @game_over = false  
+  @broke = false  
 end
 
 get '/' do
   if session[:player_name]
-    redirect '/game'
+    redirect '/bet'
   else
     redirect '/get_name'
   end
 end
 
 get '/get_name' do
+  session[:player_pot] = 500
+  if session[:max_pot].nil?
+    session[:max_pot] = 0
+  end
   erb :get_name
 end
 
@@ -90,7 +112,29 @@ post '/get_name' do
   session[:player_name] = params[:player_name]  
   session[:player_score] = 0
   session[:dealer_score] = 0
-  redirect '/game'
+  session[:counter] = 0
+  redirect '/bet'
+end
+
+get '/bet' do
+  erb :bet
+end
+
+post '/bet' do
+  if params[:bet_amount].empty?
+    @error = "Please make a bet."
+    halt erb(:bet)
+  elsif params[:bet_amount].to_i > session[:player_pot]
+    @error = "You can't bet more than you have."
+    halt erb(:bet)
+  elsif params[:bet_amount].to_i.to_s != params[:bet_amount] || params[:bet_amount].to_i <= 0
+    @error = "Please enter a valid amount."
+    halt erb(:bet)
+  else
+    session[:player_bet] = params[:bet_amount].to_i
+    session[:counter] += 1
+    redirect '/game'
+  end
 end
 
 get '/game' do
@@ -113,6 +157,7 @@ get '/game' do
     @win = "#{session[:player_name]} hits blackjack! #{session[:player_name]} wins!"
     @game_over = true
     session[:player_score] += 1
+    session[:player_pot] += session[:player_bet]
   else 
     @hit_or_stay_buttons = true
   end
@@ -127,27 +172,20 @@ post '/game/player/hit' do
     @error = "Sorry, #{session[:player_name]} busted at #{calculate_total(session[:player_cards])}!"
     @hit_or_stay_buttons = false
     @game_over = true
-    session[:dealer_score] += 1    
+    session[:dealer_score] += 1 
+    session[:player_pot] -= session[:player_bet]  
+    check_pot 
   elsif calculate_total(session[:player_cards]) == 21
     @win = "#{session[:player_name]} got 21."
     @hit_or_stay_buttons = false
     redirect '/game/dealer'
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/player/stay' do 
   @hit_or_stay_buttons = false
-  @info = "#{session[:player_name]} has decided to stay."
-  @dealer_second_card_button = true
-
-  erb :game
-end
-
-post '/game/dealer/second_card' do 
-  @dealer_turn = true
-  
   redirect '/game/dealer'
 end
 
@@ -158,7 +196,9 @@ get '/game/dealer' do
   if session[:dealer_cards].length == 2 && dealer_total == 21
     @error = "Dealer hits blackjack. #{session[:player_name]} loses!"
     @game_over = true
-    session[:dealer_score] += 1    
+    session[:dealer_score] += 1
+    session[:player_pot] -= session[:player_bet]    
+    check_pot    
   elsif dealer_total >= 17
     @dealer_hit_button = false
     compare_results    
@@ -166,7 +206,7 @@ get '/game/dealer' do
     @dealer_hit_button = true
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do   
@@ -176,11 +216,16 @@ post '/game/dealer/hit' do
 end
 
 post '/game/play_again_yes' do
-  redirect '/game'
+  redirect '/bet'
 end
 
 post '/game/play_again_no' do
   @hit_or_stay_buttons = false
+  set_records
+  erb :bye
+end
 
+get '/bye' do 
+  set_records
   erb :bye
 end

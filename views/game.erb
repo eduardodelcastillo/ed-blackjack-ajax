@@ -1,9 +1,69 @@
-<table id="score"><tr>
-  <th><h4>Hello <%=session[:player_name]%>. Good luck!</h4></th>
-  <th><h4>  SCORE  </h4></th>
-  <th><%=session[:player_name]%>: <%=session[:player_score]%> | Dealer: <%=session[:dealer_score]%></th>
-</tr></table>
-<br>
+<div id='game'>
+
+  <div id="game_message">
+    <%if @hit_or_stay_buttons%>
+      <table>
+        <tr>
+          <th> Does <%=session[:player_name]%> want to hit or stay?</th>
+          <th><form action='/game/player/hit' method='post' id='hit_form'>
+            <input type='submit' class='btn btn-primary' value='Hit'>
+          </form></th>
+          <th><form action='/game/player/stay' method='post' id='stay_form'>
+            <input type='submit' class='btn btn-warning' value='Stay'>
+          </form></th>
+        </tr>
+      </table>
+    <%end%> 
+
+    <%if @error %>
+      <div class="alert alert-error"><%=@error%></div>
+    <%end%>
+    <%if @win %>
+      <div class="alert alert-success"><%=@win%></div>
+    <% end %>
+    <%if @info %>
+      <div class="alert alert-info"><%=@info%></div>
+    <% end %> 
+
+    <% if @dealer_hit_button %>
+      <form action='/game/dealer/hit' method='post' id='dealer_hit_form'>
+        <input type='submit' class='btn btn-primary' value="See Dealer's next card">
+      </form>  
+    <% end %>   
+
+    <%if @game_over && !@broke%>
+      <div class="alert">
+        <%=session[:player_name]%>'s Pot: $<%=session[:player_pot]%>
+        <br/>
+        Does <%=session[:player_name]%> want to play again?
+        <table><tr>
+        <th><form action='/game/play_again_yes' method='post'>
+        <input type='submit' class='btn' value='Yes'>
+        </form></th>
+          <th><form action='/game/play_again_no' method='post'>
+          <input type='submit' class='btn' value='No'>
+        </form></th>  
+        </tr></table>  
+      </div> 
+    <%end%>
+
+    <%if @broke%>
+      <div class="alert">
+        <h4><%=session[:player_name]%> is broke!</h4>
+        <button class='btn'>
+          <a href="/bye">Ok</a>
+        </button>
+      </div>
+    <%end%>
+  </div>
+
+<h3>Hello <%=session[:player_name]%>. Good luck!</h3>
+<table id="score">
+  <tr><th><h4> <%=session[:player_name]%>'s Pot: $<%=session[:player_pot]%></h4></th>
+    <th><h4>Bet: $<%=session[:player_bet]%></h4></th>
+  </tr>
+</table>
+<br/>
 <% if @dealer_turn %>
   <h5> Dealer's cards are: </h5>
   <% session[:dealer_cards].each do |card| %>
@@ -26,3 +86,4 @@
 <br/>
 <br/>
 <%=session[:player_name]%>'s total is <%=calculate_total(session[:player_cards])%>.
+</div>
