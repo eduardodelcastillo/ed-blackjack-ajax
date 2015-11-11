@@ -1,9 +1,16 @@
-<h2>Welcome to Blackjack!</h2>
-<h4>What is your name?</h4>
+<div class='game_message'>
+  <%if @error %>
+    <div class="alert alert-error"><%=@error%></div>
+  <%end%>
+</div>  
 
-<form action='/get_name' method='post'>
-  <table id="get_name"><tr>
-    <th><input type='text' name='player_name'/></th>
-    <th><input type="submit" class='btn'/></th>
-  </tr></table>
-</form>
+<div id='name_page'>
+  <h2>Welcome to Blackjack!</h2>
+  <h4>What is your name?</h4>
+  <div id='name_table'>
+    <form action='/get_name' method='post'>
+      <input type='text' name='player_name'/>
+      <input type="submit" class='btn btn-large btn-primary' value='Start!'/>
+    </form>
+  </div>
+</div> 

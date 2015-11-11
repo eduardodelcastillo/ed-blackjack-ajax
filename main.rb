@@ -90,7 +90,7 @@ end
 
 get '/' do
   if session[:player_name]
-    redirect '/bet'
+    redirect '/game'
   else
     redirect '/get_name'
   end
@@ -113,56 +113,55 @@ post '/get_name' do
   session[:player_score] = 0
   session[:dealer_score] = 0
   session[:counter] = 0
-  redirect '/bet'
+  session[:player_bet] = 0
+  redirect '/game'
 end
 
-get '/bet' do
-  erb :bet
+get '/game' do
+  if session[:player_bet] > 0
+    @hit_or_stay_buttons = true
+    cards = %w(2 3 4 5 6 7 8 9 10 J Q K A)
+    suits = %w(spades clubs hearts diamonds)
+    deck = suits.product(cards)
+    # Using 4 deck of cards for the game
+    session[:deck] = deck * 4
+    session[:deck].shuffle!  
+    session[:player_cards] = []
+    session[:dealer_cards] = [] 
+    2.times do 
+      session[:player_cards] << session[:deck].pop
+      session[:dealer_cards] << session[:deck].pop
+    end 
+    player_total = calculate_total(session[:player_cards])
+    if player_total == 21
+      @hit_or_stay_buttons = false
+      @win = "#{session[:player_name]} hits blackjack! #{session[:player_name]} wins!"
+      @game_over = true
+      session[:player_score] += 1
+      session[:player_pot] += session[:player_bet]
+    else 
+      @hit_or_stay_buttons = true
+    end
+  end
+
+  erb :game
 end
 
 post '/bet' do
   if params[:bet_amount].empty?
     @error = "Please make a bet."
-    halt erb(:bet)
+    halt erb(:game)
   elsif params[:bet_amount].to_i > session[:player_pot]
     @error = "You can't bet more than you have."
-    halt erb(:bet)
+    halt erb(:game)
   elsif params[:bet_amount].to_i.to_s != params[:bet_amount] || params[:bet_amount].to_i <= 0
     @error = "Please enter a valid amount."
-    halt erb(:bet)
+    halt erb(:game)
   else
     session[:player_bet] = params[:bet_amount].to_i
     session[:counter] += 1
     redirect '/game'
   end
-end
-
-get '/game' do
-  @hit_or_stay_buttons = true
-  cards = %w(2 3 4 5 6 7 8 9 10 J Q K A)
-  suits = %w(spades clubs hearts diamonds)
-  deck = suits.product(cards)
-  # Using 4 deck of cards for the game
-  session[:deck] = deck * 4
-  session[:deck].shuffle!  
-  session[:player_cards] = []
-  session[:dealer_cards] = [] 
-  2.times do 
-    session[:player_cards] << session[:deck].pop
-    session[:dealer_cards] << session[:deck].pop
-  end 
-  player_total = calculate_total(session[:player_cards])
-  if player_total == 21
-    @hit_or_stay_buttons = false
-    @win = "#{session[:player_name]} hits blackjack! #{session[:player_name]} wins!"
-    @game_over = true
-    session[:player_score] += 1
-    session[:player_pot] += session[:player_bet]
-  else 
-    @hit_or_stay_buttons = true
-  end
-
-  erb :game
 end
 
 post '/game/player/hit' do
@@ -216,7 +215,8 @@ post '/game/dealer/hit' do
 end
 
 post '/game/play_again_yes' do
-  redirect '/bet'
+  session[:player_bet] = 0
+  redirect '/game'
 end
 
 post '/game/play_again_no' do

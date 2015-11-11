@@ -2,7 +2,7 @@ body {
   background-image: url('/images/bggreen.jpg');
   background-repeat: repeat;
   color: white;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 a:visited {
@@ -14,16 +14,40 @@ a:hover {
   color: silver;
 }
 
+#name_page {
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  text-align: center;
+  font-family: Georgia;
+}
+
+#name_table {
+  display: table-cell;
+  width: 66%;
+  margin: 0 auto;  
+  vertical-align: middle;
+}
+
 #blackjack_title {
+  margin-top: 20px;
+  font-family: 'Fredericka the Great', cursive;
+  font-size: 56px;  
   text-align: center
 }
 
-#game_message {
+#greeting {
+  font-family: Georgia;
+}
+
+.game_message {
   position: fixed;
   width: 30%;
   text-align: left;
   float: right;
-  right: 10px;
+  right: 30px;
+  top: 100px;
 }
 
 #game_message th {
@@ -34,11 +58,24 @@ a:hover {
   margin: 0 10px 0 10px;
 }
 
+#bet_form {
+  display: table-cell;
+  vertical-align: middle;
+}
+
 #fixed_button {
   position: fixed;
   bottom: 50px;
   right: 50px;
   border-radius: 150px;
+}
+
+#fixed_button a {
+  color: silver;
+}
+
+#fixed_button a:hover {
+  color: white;
 }
 
 #card_cover, .card_image {
@@ -51,6 +88,12 @@ a:hover {
   vertical-align: top;
 }
 
+#score_table {
+  border: 1px solid white;
+  border-radius: 10px;
+  width: 330px;
+}
+
 #score th{
   text-align: left;
   width: 250;
@@ -59,4 +102,5 @@ a:hover {
 
 #bye_message {
   text-align: center;
+  margin-top: 50px;
 }
